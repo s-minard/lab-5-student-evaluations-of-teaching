@@ -170,13 +170,12 @@ teacher_evals |>
          percent_failed_cur, 
          academic_degree, 
          seniority, 
-         sex)
-
-teacher_evals_clean <- janitor::clean_names(teacher_evals_clean) |> 
-  write_csv("data/data-clean/teacher_evals_clean.csv")
+         sex) |> 
+write_csv("data/data-clean/teacher_evals_clean.csv")
 
 teacher_evals_clean <- read_csv("data/data-clean/teacher_evals_clean.csv")
-  
+teacher_evals_clean <- janitor::clean_names(teacher_evals_clean) 
+
 ```
 
 **6. How many unique instructors and unique courses are present in the cleaned dataset?**
