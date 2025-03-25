@@ -1,3 +1,13 @@
+---
+title: "Lab 5: Student Evaluations of Teaching"
+author: Sam Minard
+
+output: 
+  html_document:
+    toc: true
+    theme: readable
+---
+
 In this lab, we will be using the `dplyr` package to explore student evaluations
 of teaching data. 
 
@@ -128,8 +138,7 @@ type, course breadth, class duration, class size).
 4.  **course grades** (mean, standard deviation, percentage failed for the
 current course and previous 6 semesters).
 
-This rich dataset allows us to **investigate many of the biases in student evaluations of teaching** that have been reported in the literature and to formulate new
-hypotheses.
+This rich dataset allows us to **investigate many of the biases in student evaluations of teaching** that have been reported in the literature and to formulate new hypotheses.
 
 Before tackling the problems below, study the description of each variable
 included in the `teacher_evals_codebook.pdf`.
@@ -139,6 +148,7 @@ included in the `teacher_evals_codebook.pdf`.
 ```{r}
 #| label: setup
 # code chunk for loading packages
+library(tidyverse) #includes dplyr
 
 ```
 
@@ -147,6 +157,7 @@ included in the `teacher_evals_codebook.pdf`.
 ```{r}
 #| label: load-data
 # code chunk for importing the data
+teacher_evals <- read_csv("data/data-raw/teacher_evals.csv")
 
 ```
 
@@ -157,8 +168,12 @@ included in the `teacher_evals_codebook.pdf`.
 ```{r}
 #| label: explore-data
 # you may want to use code to answer this question
-
+glimpse(teacher_evals)
+summary(teacher_evals)
 ```
+
+> There are 22 columns and 8,015 rows in the data set. The mean value for the response variable (SET_score_avg) is 4.392, and the range is 1-5. Given the high average score and the fact that the first quartile is 4, low scores must not be common.
+>There is a combination of categorical and numerical variables. Some columns, like time_of_day or seniority, could be redfined depending on how we want to treat them in the analysis. For example, seniority may be ordinal and better categorized as a factor. Certain columns, like SET_score_1sem and class_duration, have a disproportionately high number of NAs. 
 
 **4. What is the unit of observation (i.e. a single row in the dataset) identified by?**
 
@@ -167,6 +182,8 @@ included in the `teacher_evals_codebook.pdf`.
 # you may want to use code to answer this question
 
 ```
+
+>I think- if the units of observations are the teachers- that they are identified by the teacher_id column.
 
 **5. Use _one_ `dplyr` pipeline to clean the data by:**
 
@@ -180,7 +197,26 @@ included in the `teacher_evals_codebook.pdf`.
 ```{r}
 #| label: data-cleaning
 # code chunk for Q4
-
+teacher_evals |> 
+  rename(sex = gender) |> 
+  filter(no_participants > 10) |> 
+  arrange((no_participants)) |> 
+  mutate(teacher_id = as.character(teacher_id),
+         seniority = as.integer(seniority)) |> 
+  select(course_id, 
+         teacher_id, 
+         question_no, 
+         no_participants, 
+         resp_share, 
+         SET_score_avg, 
+         percent_failed_cur, 
+         academic_degree, 
+         seniority, 
+         sex) |> 
+  write_csv("data/data-clean/teacher_evals_clean.csv")
+  
+teacher_evals_clean <- read_csv("data/data-clean/teacher_evals_clean.csv")
+  
 ```
 
 **6. How many unique instructors and unique courses are present in the cleaned dataset?**
@@ -188,8 +224,12 @@ included in the `teacher_evals_codebook.pdf`.
 ```{r}
 #| label: unique-courses
 # code chunk for Q5
+unique(teacher_evals_clean[,1])
+unique(teacher_evals_clean[,2])
 
 ```
+
+>There are 921 unique Course IDs and 294 unique Teacher IDs.
 
 **7. One teacher-course combination has some missing values, coded as `NA`. Which instructor has these missing values? Which course? What variable are the missing values in?**
 
